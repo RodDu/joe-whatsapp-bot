@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+
+# Auth & Session
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Environment & Secrets
+.env
+
+# Logs
+*.log
+*.log.old
+
+# Temporary files
+temp_voice/
+temp_*.ogg
+temp_*.wav
+temp_*.png
+temp_*.mp3
+
+# Notification archive
+sent_notifications/
+
+# User data
+config.json
+user_response.json
+data/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE
+.vscode/
+.idea/

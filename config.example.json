@@ -1,0 +1,53 @@
+﻿{
+  "bot": {
+    "name": "Joe",
+    "language": "en",
+    "userTitle": "",
+    "systemPrompt": ""
+  },
+  "agents": {
+    "assistant": {
+      "type": "api",
+      "model": "gemini-2.5-flash",
+      "description": "Cloud AI assistant for general questions and coding"
+    },
+    "local": {
+      "type": "local",
+      "model": "gemma2",
+      "description": "Local LLM for private conversations and offline use"
+    },
+    "system": {
+      "type": "system",
+      "description": "System commands: status, restart, logs"
+    }
+  },
+  "agentAliases": {
+    "ai": "assistant",
+    "gemini": "assistant",
+    "ollama": "local",
+    "gemma": "local"
+  },
+  "monitoring": {
+    "services": [
+      {
+        "name": "Ollama",
+        "check": "http",
+        "url": "http://localhost:11434",
+        "description": "Local LLM server"
+      }
+    ]
+  },
+  "autoRoute": {
+    "systemKeywords": ["restart", "status", "logs", "process", "service", "start", "stop"],
+    "codeKeywords": ["code", "program", "python", "javascript", "bug", "error", "script", "function", "api", "debug", "git"],
+    "creativeKeywords": ["analyze", "creative", "imagine", "write", "story", "poem", "debate", "compare", "philosophy"]
+  },
+  "tts": {
+    "maxChars": 2000,
+    "voice": "en-US-GuyNeural"
+  },
+  "notifications": {
+    "enabled": true,
+    "checkIntervalMs": 10000
+  }
+}

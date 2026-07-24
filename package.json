@@ -1,0 +1,37 @@
+﻿{
+  "name": "joe-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "AI-powered WhatsApp personal assistant with voice support, multi-agent routing, and extensible tool system",
+  "main": "bot.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node bot.js",
+    "setup": "npm install && echo Setup complete. Copy .env.example to .env and configure your settings."
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "ai",
+    "assistant",
+    "gemini",
+    "ollama",
+    "voice",
+    "tts",
+    "whatsapp-web.js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RodDu/joe-whatsapp-bot"
+  },
+  "dependencies": {
+    "whatsapp-web.js": "^1.22.0",
+    "qrcode-terminal": "^0.12.0",
+    "puppeteer": "^22.8.0",
+    "dotenv": "^16.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
