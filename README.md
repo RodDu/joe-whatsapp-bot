@@ -1,188 +1,593 @@
-﻿<🤖 Joe WhatsApp Bot>
-> Your personal AI assistant on WhatsApp — voice & text, powered by Gemini and Ollama.
+<div align="center">
 
-[English](#english) | [Português](#português)
+<img src=".github/assets/hero_banner.jpg" alt="Joe WhatsApp Bot" width="100%">
 
----
+<br><br>
 
-## English
+# 🤖 Joe WhatsApp Bot
 
-### Features
-- 🎙️ **Voice messages:** Send a voice note, the bot transcribes it, queries the AI, and replies with TTS audio!
-- 💬 **Text commands & AI Routing:** Smart routing to the best agent (e.g., local Ollama for privacy, cloud Gemini for coding).
-- 🧠 **Multi-agent system:** Cloud AI via Gemini API and Local AI via Ollama.
-- ⚙️ **/status:** Quickly check system services and their health directly in the chat.
-- 📸 **/print:** Capture a screenshot of any local or remote web page.
-- 🌐 **/link:** Create a temporary public URL via Cloudflare Tunnel.
-- 🤝 **/join:** Automatically join WhatsApp groups by providing an invite link.
-- 🔔 **Notification watcher:** External apps can send notifications through the bot to your WhatsApp.
-- 🧰 **Extensible tool system:** Add capabilities like web search, file management, notes, tasks, and memory.
-- 🖥️ **Cross-platform:** Works flawlessly on Windows, Linux, and macOS.
+### Your personal AI butler on WhatsApp.
 
-### Prerequisites
-- Node.js 18+ (https://nodejs.org)
-- Python 3.10+ (https://python.org)
-- ffmpeg (required for audio/voice message conversion)
-- At least ONE of:
-  - Gemini API key (Free at [Google AI Studio](https://aistudio.google.com/apikey))
-  - Ollama installed locally ([Ollama](https://ollama.ai))
-- Optional: `cloudflared` (for the `/link` command to create tunnels)
+Voice & text. Cloud & local. Gemini & Ollama.<br>
+Send a voice note, get an AI-powered voice reply. Ask anything, from anywhere.
 
-### Quick Start
-1. Clone the repository: `git clone https://github.com/RodDu/joe-whatsapp-bot.git`
-2. Navigate into the directory: `cd joe-whatsapp-bot`
-3. Run the setup script for your OS:
-   - Windows: Run `setup.bat`
-   - Linux/macOS: Run `bash setup.sh`
-   *(Alternatively, run `npm install` and `pip install -r requirements.txt` manually)*
-4. Copy `.env.example` to `.env` and fill in your values:
-   - `OWNER_PHONE` is required (your WhatsApp number with country code, e.g., `5511999998888`).
-   - Add your `GEMINI_API_KEY` or configure `OLLAMA_BASE_URL`.
-5. Copy `config.example.json` to `config.json` and customize it to your liking.
-6. Start the bot: `npm start`
-7. Scan the QR code displayed in your terminal using the "Linked Devices" option in your WhatsApp app.
-8. Send a message to yourself to test, or use the `/joe` prefix in groups!
+<br>
 
-### Configuration
-The bot relies on two main configuration files:
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Python](https://img.shields.io/badge/python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-ready-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](#-quick-start)
+[![Gemini](https://img.shields.io/badge/Gemini-API-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://aistudio.google.com/apikey)
+[![Ollama](https://img.shields.io/badge/Ollama-local-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.ai)
 
-#### `.env` - Environment Variables
-- `OWNER_PHONE`: Your phone number with country code (no `+`, spaces, or dashes). Required.
-- `GEMINI_API_KEY`: Your Google AI Studio API key.
-- `OLLAMA_BASE_URL` & `OLLAMA_MODEL`: Settings for your local Ollama instance (default `http://localhost:11434` and `gemma2`).
-- `BOT_NAME`, `USER_TITLE`, `BOT_SYSTEM_PROMPT`: Personalize how the bot identifies itself and you.
-- `TTS_ENGINE`, `TTS_VOICE`, `VOICEBOX_URL`: Configure Text-to-Speech settings (using `edge-tts` or local `voicebox`).
-- `TRANSCRIPTION_ENGINE`: Choose between `gemini`, `voicebox`, or `whisper`.
-- `TUNNEL_PORT`: Port exposed when using the `/link` command.
+<br>
 
-#### `config.json` - Bot Logic
-- `bot`: General info like bot name and language.
-- `agents`: Define available AI models (`assistant` using Gemini, `local` using Ollama, `system` for bot commands).
-- `agentAliases`: Shortcuts to call specific agents (e.g., calling `@gemini` routes to the `assistant` agent).
-- `monitoring`: Services to check when you run the `/status` command.
-- `autoRoute`: Keywords that dictate which agent handles a message automatically.
-- `tts`: Character limits and voice selection.
-- `notifications`: Manage external notification watching.
+[English](#-features) · [Português](#-funcionalidades) · [Install](INSTALL.md) · [Contributing](CONTRIBUTING.md)
 
-### Commands
-| Command | Description |
-|---|---|
-| `@agent [msg]` | Direct a message to a specific agent (e.g., `@ollama hello`). |
-| `/status` | Check the health of configured local services (e.g., Ollama). |
-| `/print [url]` | Take a screenshot of the specified webpage and send it back. |
-| `/link` | Start a Cloudflare Tunnel and return a public link. |
-| `/join [link]` | Join a WhatsApp group using an invite link. |
-| `/joe [msg]` | Explicitly talk to the bot in group chats (to avoid it responding to everything). |
+</div>
 
-### Architecture
-The main Node.js process (`bot.js`) handles the WhatsApp connection using `whatsapp-web.js`. When a voice message arrives or AI processing is needed, the bot spawns a Python script (`voice_router.py` ou similar). Python handles the heavy lifting (transcription via Whisper/Gemini, AI inference routing, and TTS via Edge-TTS) and returns the result back to Node.js, which sends the final text or audio back to WhatsApp.
-
-### Extending with Tools
-The tool system is modular! You can add new capabilities (like checking weather, reading files, searching the web).
-1. Create a new module inside the `tools/` directory.
-2. Define the tool schema and execution logic.
-3. Register the tool in the main agent configuration.
-When the AI decides it needs to perform an action, it will execute your tool and use the returned data to reply.
-
-### Troubleshooting
-- **No QR Code appears:** Ensure `npm install` finished successfully and Puppeteer was installed. Check your internet connection.
-- **Node/Python errors on startup:** Verify you are running Node.js 18+ and Python 3.10+.
-- **FFmpeg not found:** You must install FFmpeg and add it to your system PATH for audio conversion to work.
-- **Bot ignores me:** Check if the `OWNER_PHONE` in `.env` exactly matches your WhatsApp number.
-- **Voice messages fail:** Ensure your `TRANSCRIPTION_ENGINE` is configured properly. If using `gemini`, ensure you have a valid API key.
+<br>
 
 ---
 
-## Português
+<br>
 
-### Funcionalidades
-- 🎙️ **Mensagens de voz:** Envie um áudio, o bot transcreve, consulta a IA e responde com outro áudio TTS!
-- 💬 **Comandos de texto e Roteamento:** Roteamento inteligente para o melhor agente (ex: Ollama local para privacidade, Gemini na nuvem para código).
-- 🧠 **Sistema multi-agentes:** IA na nuvem via API do Gemini e IA local via Ollama.
-- ⚙️ **/status:** Verifique rapidamente a integridade dos serviços do sistema diretamente no chat.
-- 📸 **/print:** Capture a tela (screenshot) de qualquer página web local ou remota.
-- 🌐 **/link:** Crie uma URL pública temporária via Cloudflare Tunnel.
-- 🤝 **/join:** Entre automaticamente em grupos do WhatsApp enviando um link de convite.
-- 🔔 **Observador de notificações:** Aplicativos externos podem enviar notificações através do bot para o seu WhatsApp.
-- 🧰 **Sistema de ferramentas extensível:** Adicione capacidades como pesquisa na web, gerenciamento de arquivos, notas, tarefas e memória.
-- 🖥️ **Multiplataforma:** Funciona perfeitamente no Windows, Linux e macOS.
+## ✨ Features
 
-### Pré-requisitos
-- Node.js 18+ (https://nodejs.org)
-- Python 3.10+ (https://python.org)
-- ffmpeg (necessário para a conversão de áudio/voz)
-- Pelo menos UM dos seguintes:
-  - Chave de API do Gemini (Gratuita no [Google AI Studio](https://aistudio.google.com/apikey))
-  - Ollama instalado localmente ([Ollama](https://ollama.ai))
-- Opcional: `cloudflared` (para o comando `/link` criar túneis)
+<table>
+<tr>
+<td width="60">🎙️</td>
+<td><strong>Voice conversations</strong> — Send a voice note → transcribed → AI processes → replies with TTS audio. Full voice loop.</td>
+</tr>
+<tr>
+<td>💬</td>
+<td><strong>Smart agent routing</strong> — Messages are routed to the best AI: Gemini for complex tasks, local Ollama for privacy-sensitive ones.</td>
+</tr>
+<tr>
+<td>🧠</td>
+<td><strong>Multi-agent system</strong> — Cloud AI (Gemini API) + Local AI (Ollama) working together. Switch with <code>@agent</code> or let auto-routing decide.</td>
+</tr>
+<tr>
+<td>🔔</td>
+<td><strong>Notification bridge</strong> — External apps push notifications through the bot to your WhatsApp. Perfect for server alerts and CI/CD.</td>
+</tr>
+<tr>
+<td>🧰</td>
+<td><strong>Extensible tool system</strong> — Drop a module in <code>tools/</code> and the AI gains new capabilities: web search, file management, notes, memory.</td>
+</tr>
+<tr>
+<td>📸</td>
+<td><strong>/print</strong> — Screenshot any webpage and receive it as an image in chat.</td>
+</tr>
+<tr>
+<td>🌐</td>
+<td><strong>/link</strong> — Spin up a temporary public URL via Cloudflare Tunnel, right from WhatsApp.</td>
+</tr>
+<tr>
+<td>⚙️</td>
+<td><strong>/status</strong> — Health-check your local services (Ollama, APIs, tunnels) without leaving the chat.</td>
+</tr>
+<tr>
+<td>🖥️</td>
+<td><strong>Cross-platform</strong> — Windows, Linux, macOS. One codebase, zero platform-specific hacks.</td>
+</tr>
+</table>
 
-### Início Rápido
-1. Clone o repositório: `git clone https://github.com/RodDu/joe-whatsapp-bot.git`
-2. Entre no diretório: `cd joe-whatsapp-bot`
-3. Execute o script de configuração para o seu SO:
-   - Windows: Execute `setup.bat`
-   - Linux/macOS: Execute `bash setup.sh`
-   *(Ou execute `npm install` e `pip install -r requirements.txt` manualmente)*
-4. Copie `.env.example` para `.env` e preencha seus valores:
-   - `OWNER_PHONE` é obrigatório (seu número do WhatsApp com código do país, ex: `5511999998888`).
-   - Adicione sua `GEMINI_API_KEY` ou configure `OLLAMA_BASE_URL`.
-5. Copie `config.example.json` para `config.json` e personalize como quiser.
-6. Inicie o bot: `npm start`
-7. Escaneie o código QR exibido no terminal usando a opção "Aparelhos Conectados" no seu aplicativo do WhatsApp.
-8. Envie uma mensagem para você mesmo para testar, ou use o prefixo `/joe` em grupos!
+<br>
 
-### Configuração
-O bot depende de dois arquivos principais de configuração:
+## 🎙️ Voice Conversation Flow
 
-#### `.env` - Variáveis de Ambiente
-- `OWNER_PHONE`: Seu número de telefone com o código do país (sem `+`, espaços ou traços). Obrigatório.
-- `GEMINI_API_KEY`: Sua chave de API do Google AI Studio.
-- `OLLAMA_BASE_URL` & `OLLAMA_MODEL`: Configurações do seu Ollama local (padrão `http://localhost:11434` e `gemma2`).
-- `BOT_NAME`, `USER_TITLE`, `BOT_SYSTEM_PROMPT`: Personalize como o bot se identifica e como ele te chama.
-- `TTS_ENGINE`, `TTS_VOICE`, `VOICEBOX_URL`: Configure o Text-to-Speech (usando `edge-tts` ou `voicebox` local).
-- `TRANSCRIPTION_ENGINE`: Escolha entre `gemini`, `voicebox` ou `whisper`.
-- `TUNNEL_PORT`: Porta exposta ao usar o comando `/link`.
+<div align="center">
+<img src=".github/assets/voice_flow.jpg" alt="Voice conversation flow" width="100%">
+</div>
 
-#### `config.json` - Lógica do Bot
-- `bot`: Informações gerais como nome e idioma do bot.
-- `agents`: Define os modelos de IA disponíveis (`assistant` usando Gemini, `local` usando Ollama, `system` para comandos).
-- `agentAliases`: Atalhos para chamar agentes específicos (ex: `@gemini` vai para o agente `assistant`).
-- `monitoring`: Serviços a serem verificados quando você usa o comando `/status`.
-- `autoRoute`: Palavras-chave que decidem qual agente processa a mensagem automaticamente.
-- `tts`: Limite de caracteres e seleção de voz.
-- `notifications`: Gerencia a verificação de notificações externas.
+<br>
 
-### Comandos
-| Comando | Descrição |
-|---|---|
-| `@agente [msg]` | Direciona uma mensagem para um agente específico (ex: `@ollama oi`). |
-| `/status` | Verifica a saúde dos serviços locais (ex: Ollama). |
-| `/print [url]` | Tira um print (screenshot) de uma página web e envia a imagem. |
-| `/link` | Inicia um Cloudflare Tunnel e retorna um link público. |
-| `/join [link]` | Entra em um grupo do WhatsApp usando um link de convite. |
-| `/joe [msg]` | Fala explicitamente com o bot em grupos (para que ele não responda a tudo). |
+Send a voice note in any chat. Joe transcribes it (Whisper or Gemini), routes the text to the best AI agent, generates a response, converts it to speech via Edge-TTS, and sends the audio reply back — all in a single seamless flow.
 
-### Arquitetura
-O processo principal em Node.js (`bot.js`) gerencia a conexão do WhatsApp usando `whatsapp-web.js`. Quando um áudio chega ou processamento de IA é necessário, o bot invoca um script Python (`voice_router.py` ou similar). O Python faz o trabalho pesado (transcrição via Whisper/Gemini, roteamento de IA e TTS via Edge-TTS) e retorna o resultado para o Node.js, que envia o texto ou áudio final de volta ao WhatsApp.
+<br>
 
-### Estendendo com Ferramentas
-O sistema de ferramentas é modular! Você pode adicionar novas capacidades (como previsão do tempo, ler arquivos, buscar na web).
-1. Crie um novo módulo dentro do diretório `tools/`.
-2. Defina o esquema da ferramenta e a lógica de execução.
-3. Registre a ferramenta na configuração do agente principal.
-Quando a IA decidir que precisa agir, ela executará sua ferramenta e usará os dados para responder.
+## 🧠 Multi-Agent System
 
-### Solução de Problemas
-- **Nenhum QR Code aparece:** Confirme se o `npm install` terminou sem erros e se o Puppeteer foi instalado. Verifique sua internet.
-- **Erros de Node/Python ao iniciar:** Certifique-se de que está rodando Node.js 18+ e Python 3.10+.
-- **FFmpeg não encontrado:** Você deve instalar o FFmpeg e adicioná-lo ao PATH do sistema para a conversão de áudio funcionar.
-- **Bot me ignora:** Verifique se o `OWNER_PHONE` no `.env` corresponde exatamente ao seu número do WhatsApp.
-- **Mensagens de voz falham:** Verifique se seu `TRANSCRIPTION_ENGINE` está configurado corretamente. Se usar `gemini`, garanta que a chave da API é válida.
+<div align="center">
+<img src=".github/assets/multi_agent.jpg" alt="Multi-agent AI routing" width="80%">
+</div>
+
+<br>
+
+Joe doesn't lock you into a single AI. It runs a **smart routing layer** that dispatches messages to the right agent based on keywords, explicit `@agent` mentions, or auto-detection:
+
+| Agent | Backend | Best for |
+|:------|:--------|:---------|
+| `assistant` | ☁️ Gemini API | Complex reasoning, coding, long context |
+| `local` | 🦙 Ollama | Privacy-sensitive queries, offline use |
+| `system` | ⚙️ Built-in | Bot commands (`/status`, `/print`, `/link`) |
+
+Switch agents mid-conversation with `@gemini`, `@ollama`, or let the auto-router decide.
+
+<br>
+
+## 🏗️ Architecture
+
+<div align="center">
+<img src=".github/assets/architecture.jpg" alt="System architecture" width="100%">
+</div>
+
+<br>
+
+```mermaid
+flowchart TD
+    WA["📱 WhatsApp"] <-->|"whatsapp-web.js"| BOT["⚡ bot.js"]
+    
+    BOT -->|"text"| ROUTER{"🧭 Router"}
+    BOT -->|"voice"| VR["🐍 voice_router.py"]
+    
+    ROUTER -->|"cloud"| GEMINI["☁️ Gemini"]
+    ROUTER -->|"local"| OLLAMA["🦙 Ollama"]
+    ROUTER -->|"cmd"| CMD["⚙️ Commands"]
+    
+    VR --> STT["🎙️ Transcribe"]
+    STT --> ROUTER
+    ROUTER --> TTS["🔊 TTS"]
+    TTS --> BOT
+    
+    TOOLS["🧰 tools/"] -.->|"extends"| ROUTER
+
+    style WA fill:#25D366,stroke:#128C7E,color:#fff
+    style BOT fill:#339933,stroke:#1a6b1a,color:#fff
+    style ROUTER fill:#0f3460,stroke:#e94560,color:#fff
+    style GEMINI fill:#4285F4,stroke:#2a5db0,color:#fff
+    style OLLAMA fill:#1a1a2e,stroke:#e94560,color:#fff
+    style VR fill:#3776AB,stroke:#1e4f7a,color:#fff
+    style STT fill:#533483,stroke:#e94560,color:#fff
+    style TTS fill:#533483,stroke:#e94560,color:#fff
+    style CMD fill:#16213e,stroke:#0f3460,color:#fff
+    style TOOLS fill:#e94560,stroke:#e94560,color:#fff
+```
+
+**Node.js** handles the WhatsApp connection and message routing. **Python** handles the heavy lifting — voice transcription, AI inference, and text-to-speech. They communicate via subprocess stdio, keeping the architecture simple and the dependencies separated.
+
+<br>
+
+## 🚀 Quick Start
+
+> **Prerequisites:** Node.js 18+, Python 3.10+, ffmpeg, and at least one AI backend (Gemini API key or local Ollama).
+
+```bash
+# 1. Clone
+git clone https://github.com/RodDu/joe-whatsapp-bot.git
+cd joe-whatsapp-bot
+
+# 2. Install (pick your OS)
+# Windows:
+setup.bat
+# Linux/macOS:
+bash setup.sh
+
+# 3. Configure
+cp .env.example .env          # Fill in your values
+cp config.example.json config.json
+
+# 4. Launch
+npm start
+```
+
+Scan the QR code in your terminal with **WhatsApp → Linked Devices → Link a Device**.
+
+Send yourself a message to test. In groups, prefix with `/joe`.
+
+> 📖 For detailed installation with troubleshooting, see **[INSTALL.md](INSTALL.md)**.
+
+<br>
+
+## 📋 Commands
+
+<div align="center">
+
+| Command | What it does |
+|:--------|:-------------|
+| `/joe [message]` | Talk to the bot in group chats |
+| `@agent [message]` | Route to a specific agent — `@gemini`, `@ollama`, etc. |
+| `/status` | Health-check local services |
+| `/print [url]` | Screenshot a webpage → image in chat |
+| `/link` | Create a public Cloudflare Tunnel URL |
+| `/join [invite-link]` | Auto-join a WhatsApp group |
+| *voice note* | Transcribe → AI → voice reply (automatic) |
+
+</div>
+
+<br>
+
+## ⚙️ Configuration
+
+The bot uses two config files:
+
+<details>
+<summary><strong><code>.env</code> — Secrets & Environment</strong></summary>
+
+<br>
+
+| Variable | Required | Description |
+|:---------|:--------:|:------------|
+| `OWNER_PHONE` | ✅ | Your WhatsApp number with country code, no `+` or spaces (e.g. `5511999998888`) |
+| `GEMINI_API_KEY` | ⚡ | Free at [Google AI Studio](https://aistudio.google.com/apikey) |
+| `OLLAMA_BASE_URL` | ⚡ | Default: `http://localhost:11434` |
+| `OLLAMA_MODEL` | | Default: `gemma2` |
+| `BOT_NAME` | | How the bot identifies itself |
+| `USER_TITLE` | | How the bot addresses you |
+| `BOT_SYSTEM_PROMPT` | | Custom system prompt for the AI |
+| `TTS_ENGINE` | | `edge-tts` (default) or `voicebox` |
+| `TTS_VOICE` | | Voice ID for TTS |
+| `TRANSCRIPTION_ENGINE` | | `gemini`, `voicebox`, or `whisper` |
+| `TUNNEL_PORT` | | Port for `/link` command |
+
+⚡ = At least one AI backend required.
+
+</details>
+
+<details>
+<summary><strong><code>config.json</code> — Bot Logic</strong></summary>
+
+<br>
+
+| Section | What it controls |
+|:--------|:-----------------|
+| `bot` | Bot name, language, general settings |
+| `agents` | AI model definitions — `assistant` (Gemini), `local` (Ollama), `system` (commands) |
+| `agentAliases` | Shortcuts like `@gemini` → routes to `assistant` agent |
+| `autoRoute` | Keywords that auto-select the right agent |
+| `monitoring` | Services to check with `/status` |
+| `tts` | Character limits, voice selection |
+| `notifications` | External notification watcher config |
+
+</details>
+
+<br>
+
+## 🧰 Extending with Tools
+
+<div align="center">
+<img src=".github/assets/tools_ecosystem.jpg" alt="Extensible tool ecosystem" width="80%">
+</div>
+
+<br>
+
+The tool system is modular. Add new capabilities without touching the core:
+
+```
+tools/
+├── your_tool.js      # Define schema + execution logic
+└── ...
+```
+
+1. Create a module in `tools/`
+2. Define the tool schema and handler
+3. Register it in the agent config
+
+The AI will automatically call your tool when it decides it needs to, and use the returned data in its reply.
+
+<br>
+
+## 🗂️ Project Structure
+
+```
+joe-whatsapp-bot/
+├── bot.js                  # Main process — WhatsApp connection & routing
+├── voice_router.py         # Python — transcription, AI, TTS
+├── config.example.json     # Bot logic config template
+├── .env.example            # Environment variables template
+├── package.json            # Node.js dependencies
+├── requirements.txt        # Python dependencies
+├── setup.bat / setup.sh    # One-click install scripts
+├── install.bat / install.sh# Advanced installer with dependency checks
+├── tools/                  # Extensible tool modules
+├── INSTALL.md              # Detailed installation guide
+├── INSTALL_MAP.md          # Installation dependency map
+├── CONTRIBUTING.md         # Contribution guidelines
+├── CODE_OF_CONDUCT.md      # Community standards
+└── SECURITY.md             # Security policy
+```
+
+<br>
+
+## 🔧 Troubleshooting
+
+<details>
+<summary><strong>No QR code appears</strong></summary>
+
+Ensure `npm install` completed without errors and Puppeteer was installed. Check your internet connection. Try deleting `node_modules` and running `npm install` again.
+</details>
+
+<details>
+<summary><strong>Node/Python errors on startup</strong></summary>
+
+Verify: `node --version` (need 18+) and `python --version` (need 3.10+). On some systems, use `python3` instead of `python`.
+</details>
+
+<details>
+<summary><strong>FFmpeg not found</strong></summary>
+
+Install FFmpeg and add it to your system PATH. On Windows: `winget install ffmpeg`. On macOS: `brew install ffmpeg`. On Ubuntu: `sudo apt install ffmpeg`.
+</details>
+
+<details>
+<summary><strong>Bot ignores my messages</strong></summary>
+
+Check that `OWNER_PHONE` in `.env` matches your WhatsApp number exactly — with country code, no `+`, no spaces, no dashes.
+</details>
+
+<details>
+<summary><strong>Voice messages fail</strong></summary>
+
+Verify your `TRANSCRIPTION_ENGINE` setting. If using `gemini`, ensure your API key is valid. If using `whisper`, ensure the model is downloaded.
+</details>
+
+<br>
 
 ---
 
-## Disclaimer
-This bot uses whatsapp-web.js which is an unofficial WhatsApp API. Use at your own risk. This project is for personal use only. Do not use for spam or unauthorized messaging.
+<br>
 
-## License
-MIT
+<div align="center">
+
+<img src=".github/assets/hero_banner.jpg" alt="Joe WhatsApp Bot" width="100%">
+
+<br><br>
+
+# 🤖 Joe WhatsApp Bot
+
+### Seu mordomo pessoal de IA no WhatsApp.
+
+Voz & texto. Nuvem & local. Gemini & Ollama.<br>
+Envie um áudio, receba uma resposta de IA por voz. Pergunte qualquer coisa, de qualquer lugar.
+
+</div>
+
+<br>
+
+## ✨ Funcionalidades
+
+<table>
+<tr>
+<td width="60">🎙️</td>
+<td><strong>Conversas por voz</strong> — Envie um áudio → transcrição → IA processa → responde com áudio TTS. Loop de voz completo.</td>
+</tr>
+<tr>
+<td>💬</td>
+<td><strong>Roteamento inteligente</strong> — Mensagens são direcionadas para a melhor IA: Gemini para tarefas complexas, Ollama local para privacidade.</td>
+</tr>
+<tr>
+<td>🧠</td>
+<td><strong>Sistema multi-agentes</strong> — IA na nuvem (Gemini API) + IA local (Ollama) trabalhando juntas. Troque com <code>@agente</code> ou deixe o roteamento decidir.</td>
+</tr>
+<tr>
+<td>🔔</td>
+<td><strong>Ponte de notificações</strong> — Apps externos enviam notificações pelo bot direto no seu WhatsApp. Perfeito para alertas de servidor.</td>
+</tr>
+<tr>
+<td>🧰</td>
+<td><strong>Ferramentas extensíveis</strong> — Coloque um módulo em <code>tools/</code> e a IA ganha novas capacidades: pesquisa web, arquivos, notas, memória.</td>
+</tr>
+<tr>
+<td>📸</td>
+<td><strong>/print</strong> — Capture a tela de qualquer página web e receba como imagem no chat.</td>
+</tr>
+<tr>
+<td>🌐</td>
+<td><strong>/link</strong> — Crie uma URL pública temporária via Cloudflare Tunnel, direto do WhatsApp.</td>
+</tr>
+<tr>
+<td>⚙️</td>
+<td><strong>/status</strong> — Verifique a saúde dos serviços locais sem sair do chat.</td>
+</tr>
+<tr>
+<td>🖥️</td>
+<td><strong>Multiplataforma</strong> — Windows, Linux, macOS. Um código, zero gambiarras.</td>
+</tr>
+</table>
+
+<br>
+
+## 🎙️ Fluxo de Conversação por Voz
+
+<div align="center">
+<img src=".github/assets/voice_flow.jpg" alt="Fluxo de conversação por voz" width="100%">
+</div>
+
+<br>
+
+Envie um áudio em qualquer chat. O Joe transcreve (Whisper ou Gemini), roteia o texto para o melhor agente de IA, gera uma resposta, converte para fala via Edge-TTS e envia o áudio de volta — tudo em um fluxo contínuo.
+
+<br>
+
+## 🧠 Sistema Multi-Agentes
+
+<div align="center">
+<img src=".github/assets/multi_agent.jpg" alt="Roteamento multi-agentes" width="80%">
+</div>
+
+<br>
+
+O Joe não te prende a uma única IA. Ele roda uma **camada de roteamento inteligente** que despacha mensagens para o agente certo:
+
+| Agente | Backend | Melhor para |
+|:-------|:--------|:------------|
+| `assistant` | ☁️ Gemini API | Raciocínio complexo, código, contexto longo |
+| `local` | 🦙 Ollama | Queries sensíveis, uso offline |
+| `system` | ⚙️ Built-in | Comandos do bot (`/status`, `/print`, `/link`) |
+
+Troque de agente com `@gemini`, `@ollama`, ou deixe o roteador automático decidir.
+
+<br>
+
+## 🚀 Início Rápido
+
+> **Pré-requisitos:** Node.js 18+, Python 3.10+, ffmpeg e pelo menos um backend de IA (chave Gemini API ou Ollama local).
+
+```bash
+# 1. Clone
+git clone https://github.com/RodDu/joe-whatsapp-bot.git
+cd joe-whatsapp-bot
+
+# 2. Instale (escolha seu SO)
+# Windows:
+setup.bat
+# Linux/macOS:
+bash setup.sh
+
+# 3. Configure
+cp .env.example .env          # Preencha seus valores
+cp config.example.json config.json
+
+# 4. Inicie
+npm start
+```
+
+Escaneie o QR code no terminal com **WhatsApp → Aparelhos Conectados → Conectar Aparelho**.
+
+Envie uma mensagem para si mesmo para testar. Em grupos, use o prefixo `/joe`.
+
+> 📖 Para instalação detalhada, veja **[INSTALL.md](INSTALL.md)**.
+
+<br>
+
+## 📋 Comandos
+
+<div align="center">
+
+| Comando | O que faz |
+|:--------|:----------|
+| `/joe [mensagem]` | Fala com o bot em grupos |
+| `@agente [mensagem]` | Roteia para um agente específico — `@gemini`, `@ollama`, etc. |
+| `/status` | Verifica a saúde dos serviços locais |
+| `/print [url]` | Captura de tela de uma página → imagem no chat |
+| `/link` | Cria uma URL pública via Cloudflare Tunnel |
+| `/join [link-convite]` | Entra automaticamente em um grupo do WhatsApp |
+| *áudio de voz* | Transcreve → IA → resposta em áudio (automático) |
+
+</div>
+
+<br>
+
+## ⚙️ Configuração
+
+<details>
+<summary><strong><code>.env</code> — Segredos e Ambiente</strong></summary>
+
+<br>
+
+| Variável | Obrigatório | Descrição |
+|:---------|:--------:|:----------|
+| `OWNER_PHONE` | ✅ | Seu número WhatsApp com código do país, sem `+` ou espaços (ex: `5511999998888`) |
+| `GEMINI_API_KEY` | ⚡ | Gratuita no [Google AI Studio](https://aistudio.google.com/apikey) |
+| `OLLAMA_BASE_URL` | ⚡ | Padrão: `http://localhost:11434` |
+| `OLLAMA_MODEL` | | Padrão: `gemma2` |
+| `BOT_NAME` | | Como o bot se identifica |
+| `USER_TITLE` | | Como o bot te chama |
+| `BOT_SYSTEM_PROMPT` | | Prompt de sistema personalizado |
+| `TTS_ENGINE` | | `edge-tts` (padrão) ou `voicebox` |
+| `TRANSCRIPTION_ENGINE` | | `gemini`, `voicebox` ou `whisper` |
+
+⚡ = Pelo menos um backend de IA é necessário.
+
+</details>
+
+<details>
+<summary><strong><code>config.json</code> — Lógica do Bot</strong></summary>
+
+<br>
+
+| Seção | O que controla |
+|:------|:---------------|
+| `bot` | Nome, idioma, configurações gerais |
+| `agents` | Modelos de IA — `assistant` (Gemini), `local` (Ollama), `system` (comandos) |
+| `agentAliases` | Atalhos como `@gemini` → roteia para o agente `assistant` |
+| `autoRoute` | Palavras-chave que selecionam o agente automaticamente |
+| `monitoring` | Serviços verificados pelo `/status` |
+| `tts` | Limites de caracteres, seleção de voz |
+| `notifications` | Configuração do observador de notificações |
+
+</details>
+
+<br>
+
+## 🧰 Estendendo com Ferramentas
+
+<div align="center">
+<img src=".github/assets/tools_ecosystem.jpg" alt="Ecossistema de ferramentas extensível" width="80%">
+</div>
+
+<br>
+
+O sistema de ferramentas é modular. Adicione novas capacidades sem tocar no core:
+
+```
+tools/
+├── sua_ferramenta.js   # Defina schema + lógica de execução
+└── ...
+```
+
+1. Crie um módulo em `tools/`
+2. Defina o schema e o handler da ferramenta
+3. Registre na configuração do agente
+
+A IA chamará sua ferramenta automaticamente quando decidir que precisa, e usará os dados retornados na resposta.
+
+<br>
+
+## 🔧 Solução de Problemas
+
+<details>
+<summary><strong>QR code não aparece</strong></summary>
+
+Confirme que o `npm install` terminou sem erros. Tente deletar `node_modules` e rodar `npm install` novamente.
+</details>
+
+<details>
+<summary><strong>Erros de Node/Python ao iniciar</strong></summary>
+
+Verifique: `node --version` (precisa 18+) e `python --version` (precisa 3.10+). Em alguns sistemas, use `python3`.
+</details>
+
+<details>
+<summary><strong>FFmpeg não encontrado</strong></summary>
+
+Instale o FFmpeg e adicione ao PATH. Windows: `winget install ffmpeg`. macOS: `brew install ffmpeg`. Ubuntu: `sudo apt install ffmpeg`.
+</details>
+
+<details>
+<summary><strong>Bot ignora minhas mensagens</strong></summary>
+
+Verifique se o `OWNER_PHONE` no `.env` corresponde ao seu número exatamente — com código do país, sem `+`, sem espaços.
+</details>
+
+<details>
+<summary><strong>Mensagens de voz falham</strong></summary>
+
+Verifique a configuração de `TRANSCRIPTION_ENGINE`. Se usar `gemini`, garanta que a chave API é válida.
+</details>
+
+<br>
+
+---
+
+<br>
+
+<div align="center">
+
+## ⚠️ Disclaimer
+
+This bot uses [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js), an unofficial WhatsApp API.<br>
+Use at your own risk. For personal use only. Do not use for spam or unauthorized messaging.
+
+<br>
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![Code of Conduct](https://img.shields.io/badge/code_of_conduct-contributor_covenant-14191f?style=flat-square)](CODE_OF_CONDUCT.md)
+[![Security Policy](https://img.shields.io/badge/security-policy-critical?style=flat-square)](SECURITY.md)
+
+<br>
+
+**[⬆ Back to top](#-joe-whatsapp-bot)**
+
+</div>
